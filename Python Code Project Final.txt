@@ -1,0 +1,69 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Feb  2 14:54:43 2020
+
+@author: arava
+"""
+
+#Lets retrive all the data for the two topics which we have
+datafile = open('project-data.txt','r')                 #Open the file with the data
+data = datafile.readlines()                     #Read the data and store it in 'data'            
+datafile.close()
+        
+#Here are all the variables used for the code                    
+csvlist = []                                    #This list will have all the topics,words,etc.
+topic = ''
+word = ''
+meaning = ''
+example = ''
+for i in data:
+    if len(i) == 1: 
+        data.remove(i)
+
+#Functions used to extract the topics 
+def extractopic(var):                      #Function to extract the topic
+    topic_line = var.split('.')
+    title = topic_line[1]
+    title = title.strip()
+    return title
+
+def extractwordmeaning(var):
+    wordmeaninglist = var.split('=')                  #Function to extarct the word's and the meaning
+    wrd = wordmeaninglist[0]                                       
+    exp = wordmeaninglist[1]
+    exp = exp.replace(',',';')
+    return [wrd,exp]
+    
+def extractexample(var):                 #Function to extract the example      
+    examplelist = var.split(':')
+    exmple = examplelist[1]
+    exmple = exmple.replace(',',';')
+    return exmple
+        
+#For loop to call the functions and put it in a list
+
+for index, i in enumerate(data):    
+    if i[0].isdecimal() == True:             #Lines starting with serial nos. have topic
+        topic = extractopic(i)
+        #print(len(topic))
+        if len(topic)==0:
+            topic = data[index+1].strip()
+            print(topic)
+    elif '=' in i:                           #Lines with Equal to Sign have word and meaning
+        temp = extractwordmeaning(i)
+        word = temp[0]
+        meaning = temp[1]
+    elif ':' in i:                           #Lines with collan have the example          
+        example = extractexample(i) 
+        example = example.strip('.')
+        csvlist.append([topic,word,meaning[:-1],example[:-1]])
+   
+csvfile = open('project.csv','w')           #Open the CSV file
+for i, j in enumerate(csvlist):             #This for loop will write down the values in the CSV File.
+    for k,l in enumerate(j):
+        csvfile.writelines(l)
+        if (k<(len(j)-1)):
+            csvfile.writelines(',')
+    csvfile.writelines('\n')
+    
+csvfile.close()
